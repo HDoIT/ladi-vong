@@ -1260,6 +1260,76 @@
             });
         });
     </script>
+    <script>
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Lấy dữ liệu từ form
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const note = document.getElementById('note').value;
+            
+            // Lấy sản phẩm đã chọn
+            const selectedProducts = [];
+            document.querySelectorAll('input[name="product"]:checked').forEach(checkbox => {
+                selectedProducts.push(checkbox.value);
+            });
+            
+            // Tạo timestamp theo giờ Việt Nam
+            const now = new Date();
+            const timezoneOffset = 7 * 60; // GMT+7 cho Việt Nam
+            const localTime = new Date(now.getTime() + (timezoneOffset + now.getTimezoneOffset()) * 60000);
+            const timestamp = localTime.toLocaleString('vi-VN');
+            
+            // Chuẩn bị dữ liệu gửi đi
+            const formData = {
+                name: name,
+                phone: phone,
+                address: address,
+                products: selectedProducts.join(', '),
+                note: note,
+                timestamp: timestamp
+            };
+            
+            // Gửi dữ liệu đến Google Apps Script
+            fetch('https://script.google.com/macros/s/AKfycbxEuYcFfCDE1q1IYwMMgYH6vjb3DQMiDJB6vcE2aoMNNMdnGZOOyp32bt2Ifk0bfPuk/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                // Hiển thị thông báo thành công
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('order-form').reset();
+                
+                // Cuộn đến thông báo thành công
+                document.getElementById('success-message').scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // alert('Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!');
+            });
+        });
+        
+        // Thêm hiệu ứng khi click vào các option sản phẩm
+        document.querySelectorAll('.product-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                
+                // Thêm hiệu ứng visual khi chọn
+                if (checkbox.checked) {
+                    this.style.backgroundColor = '#F0FDF4';
+                } else {
+                    this.style.backgroundColor = '';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
